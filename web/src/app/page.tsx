@@ -1,48 +1,55 @@
 // Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 // SPDX-License-Identifier: MIT
 
-import { useTranslations } from 'next-intl';
-import { useMemo } from "react";
+"use client";
 
-import { SiteHeader } from "./chat/components/site-header";
-import { Jumbotron } from "./landing/components/jumbotron";
-import { Ray } from "./landing/components/ray";
-import { CaseStudySection } from "./landing/sections/case-study-section";
-import { CoreFeatureSection } from "./landing/sections/core-features-section";
-import { JoinCommunitySection } from "./landing/sections/join-community-section";
-import { MultiAgentSection } from "./landing/sections/multi-agent-section";
+import { GithubOutlined } from "@ant-design/icons";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Suspense } from "react";
+
+import { Button } from "~/components/ui/button";
+
+import { Logo } from "~/components/deer-flow/logo";
+import { ThemeToggle } from "~/components/deer-flow/theme-toggle";
+import { Tooltip } from "~/components/deer-flow/tooltip";
+import { SettingsDialog } from "./settings/dialogs/settings-dialog";
+
+const Main = dynamic(() => import("./chat/main"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center">
+      Loading DeerFlow...
+    </div>
+  ),
+});
 
 export default function HomePage() {
+  const t = useTranslations("chat.page");
+
   return (
-    <div className="flex flex-col items-center">
-      <SiteHeader />
-      <main className="container flex flex-col items-center justify-center gap-56">
-        <Jumbotron />
-        <CaseStudySection />
-        <MultiAgentSection />
-        <CoreFeatureSection />
-        <JoinCommunitySection />
-      </main>
-      <Footer />
-      <Ray />
+    <div className="flex h-screen w-screen justify-center overscroll-none">
+      <header className="fixed top-0 left-0 flex h-12 w-full items-center justify-between px-4">
+        <Logo />
+        <div className="flex items-center">
+          <Tooltip title={t("starOnGitHub")}>
+            <Button variant="ghost" size="icon" asChild>
+              <Link
+                href="https://github.com/bytedance/deer-flow"
+                target="_blank"
+              >
+                <GithubOutlined />
+              </Link>
+            </Button>
+          </Tooltip>
+          <ThemeToggle />
+          <Suspense>
+            <SettingsDialog />
+          </Suspense>
+        </div>
+      </header>
+      <Main />
     </div>
-  );
-}
-function Footer() {
-  const t = useTranslations('footer');
-  const year = useMemo(() => new Date().getFullYear(), []);
-  return (
-    <footer className="container mt-32 flex flex-col items-center justify-center">
-      <hr className="from-border/0 via-border/70 to-border/0 m-0 h-px w-full border-none bg-gradient-to-r" />
-      <div className="text-muted-foreground container flex h-20 flex-col items-center justify-center text-sm">
-        <p className="text-center font-serif text-lg md:text-xl">
-          &quot;{t('quote')}&quot;
-        </p>
-      </div>
-      <div className="text-muted-foreground container mb-8 flex flex-col items-center justify-center text-xs">
-        <p>{t('license')}</p>
-        <p>&copy; {year} {t('copyright')}</p>
-      </div>
-    </footer>
   );
 }
